@@ -3,1032 +3,489 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>高中英文弱點診斷與線上互動題庫</title>
+    <title>高中英文 學習指南與全真互動題庫系統</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
-    
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        brand: {
-                            50: '#f0f7ff',
-                            100: '#e0effe',
-                            500: '#2563eb',
-                            600: '#1d4ed8',
-                            700: '#1e40af',
-                            900: '#1e3a8a',
-                        },
-                        correct: '#10b981',
-                        wrong: '#ef4444'
-                    },
-                    fontFamily: {
-                        sans: ['Plus Jakarta Sans', 'Noto Sans TC', 'sans-serif'],
-                    }
-                }
-            }
-        }
-    </script>
     <style>
-        .perspective-1000 { perspective: 1000px; }
-        .transform-style-3d { transform-style: preserve-3d; }
-        .backface-hidden { backface-visibility: hidden; }
-        .rotate-y-180 { transform: rotateY(180deg); }
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        .card-flip-container {
+            perspective: 1000px;
+        }
+        .card-flip-inner {
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+        .card-flip-container.flipped .card-flip-inner {
+            transform: rotateY(180deg);
+        }
+        .card-front, .card-back {
+            backface-visibility: hidden;
+        }
+        .card-back {
+            transform: rotateY(180deg);
+        }
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col">
 
-    <!-- Top Navigation Header -->
-    <header class="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex flex-col md:flex-row md:items-center md:justify-between py-3 gap-3">
+    <!-- 頁頭與系統導覽列 -->
+    <header class="bg-gradient-to-r from-indigo-900 via-indigo-800 to-slate-900 text-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                 <div class="flex items-center space-x-3">
-                    <div class="bg-gradient-to-tr from-brand-600 to-indigo-600 text-white p-2.5 rounded-xl shadow-md flex-shrink-0">
-                        <i class="fa-solid fa-graduation-cap text-xl"></i>
+                    <div class="p-2.5 bg-indigo-600/50 rounded-xl border border-indigo-400/30 backdrop-blur-sm">
+                        <i class="fa-solid fa-graduation-cap text-2xl text-amber-300"></i>
                     </div>
                     <div>
-                        <h1 class="font-extrabold text-base sm:text-lg text-slate-900 leading-tight">高中英文弱點診斷與線上互動題庫</h1>
-                        <p class="text-xs text-slate-500 font-medium">Lesson 2: The Marshmallow Challenge 全真題庫與觀念特訓</p>
+                        <h1 class="text-xl font-bold tracking-tight text-white flex items-center gap-2">
+                            高中英文 高效學習與互動題庫系統
+                            <span class="text-xs bg-indigo-500/40 text-indigo-200 px-2.5 py-0.5 rounded-full border border-indigo-400/30">完整修復版</span>
+                        </h1>
+                        <p class="text-xs text-indigo-200 mt-0.5">Lesson 2 The Marshmallow Challenge & 雜誌精選閱讀單元</p>
                     </div>
                 </div>
 
-                <!-- Learning Metrics Dashboard (No Raw Scores) -->
-                <div class="flex items-center space-x-3 bg-slate-100 px-3.5 py-2 rounded-xl border border-slate-200 text-xs flex-wrap sm:flex-nowrap gap-y-1">
-                    <div>
-                        <span class="text-slate-500 font-bold">已完成題數:</span>
-                        <span id="stat-completed" class="font-extrabold text-slate-800 ml-1">0 / 40</span>
+                <!-- 頂部學習統計數據 -->
+                <div class="flex items-center gap-3 bg-indigo-950/60 p-2 rounded-xl border border-indigo-700/50 text-xs">
+                    <div class="px-3 py-1 bg-indigo-800/60 rounded-lg text-center">
+                        <span class="block text-slate-400 text-[10px]">複習進度</span>
+                        <span id="stat-progress" class="font-bold text-amber-300">0 / 40 題</span>
                     </div>
-                    <div class="hidden sm:block h-4 w-px bg-slate-300"></div>
-                    <div>
-                        <span class="text-emerald-600 font-bold"><i class="fa-solid fa-circle-check"></i> 正確:</span>
-                        <span id="stat-correct" class="font-extrabold text-emerald-700 ml-1">0</span>
+                    <div class="px-3 py-1 bg-indigo-800/60 rounded-lg text-center">
+                        <span class="block text-slate-400 text-[10px]">即時正確率</span>
+                        <span id="stat-accuracy" class="font-bold text-emerald-400">-- %</span>
                     </div>
-                    <div class="hidden sm:block h-4 w-px bg-slate-300"></div>
-                    <div>
-                        <span class="text-amber-600 font-bold"><i class="fa-solid fa-triangle-exclamation"></i> 待複習:</span>
-                        <span id="stat-wrong" class="font-extrabold text-amber-600 ml-1">0</span>
-                    </div>
-                    <div class="hidden sm:block h-4 w-px bg-slate-300"></div>
-                    <div>
-                        <span class="text-brand-600 font-bold">正確率:</span>
-                        <span id="stat-rate" class="font-extrabold text-brand-700 ml-1">0%</span>
+                    <div class="px-3 py-1 bg-indigo-800/60 rounded-lg text-center">
+                        <span class="block text-slate-400 text-[10px]">語音發音</span>
+                        <span class="font-bold text-sky-300 flex items-center justify-center gap-1">
+                            <i class="fa-solid fa-volume-high"></i> 美音引擎
+                        </span>
                     </div>
                 </div>
             </div>
+
+            <!-- 純中文 Major Navigation Tabs (修復點擊切換) -->
+            <nav class="flex space-x-2 mt-4 pt-3 border-t border-indigo-700/40 overflow-x-auto pb-1" id="main-nav">
+                <button id="btn-tab-guide" 
+                    class="tab-btn active px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 flex items-center gap-2 whitespace-nowrap bg-indigo-600 text-white shadow-md">
+                    <i class="fa-solid fa-lightbulb text-amber-300"></i> 💡 學習指南
+                </button>
+                <button id="btn-tab-weakness" 
+                    class="tab-btn px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 flex items-center gap-2 whitespace-nowrap text-indigo-200 hover:bg-indigo-800/50 hover:text-white">
+                    <i class="fa-solid fa-book-bookmark text-rose-300"></i> 📕 弱點分析與錯題診斷
+                </button>
+                <button id="btn-tab-quiz" 
+                    class="tab-btn px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 flex items-center gap-2 whitespace-nowrap text-indigo-200 hover:bg-indigo-800/50 hover:text-white">
+                    <i class="fa-solid fa-pen-to-square text-emerald-300"></i> 📝 線上全真題庫
+                </button>
+                <button id="btn-tab-grammar-vocab" 
+                    class="tab-btn px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 flex items-center gap-2 whitespace-nowrap text-indigo-200 hover:bg-indigo-800/50 hover:text-white">
+                    <i class="fa-solid fa-book-open text-sky-300"></i> 📚 相關文法與單字說明
+                </button>
+            </nav>
         </div>
     </header>
 
-    <!-- Main Content Container -->
-    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full space-y-6">
+    <!-- 主要內容區域 -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
 
-        <!-- Main Navigation Tabs (Pure Chinese Titles - No Tab1/Tab2 labels) -->
-        <div class="flex border-b border-slate-200 overflow-x-auto space-x-2 custom-scrollbar pb-1">
-            <button onclick="switchMainTab('weakness')" id="nav-btn-weakness" class="tab-main-btn active inline-flex items-center space-x-2 px-5 py-3 rounded-t-xl font-bold text-xs sm:text-sm border-b-2 border-brand-600 text-brand-600 bg-white shadow-sm transition">
-                <i class="fa-solid fa-microscope text-brand-600"></i> 
-                <span>📕 弱點分析與錯題診斷</span>
-            </button>
-            <button onclick="switchMainTab('quiz')" id="nav-btn-quiz" class="tab-main-btn inline-flex items-center space-x-2 px-5 py-3 rounded-t-xl font-bold text-xs sm:text-sm text-slate-500 hover:text-slate-700 hover:bg-slate-100 transition">
-                <i class="fa-solid fa-pen-to-square"></i> 
-                <span>📝 線上全真題庫</span>
-            </button>
-        </div>
-
-        <!-- SECTION 1: WEAKNESS ANALYSIS & ERROR DIAGNOSIS -->
-        <div id="content-weakness" class="space-y-6">
-            
-            <!-- Grammar Concept Map -->
-            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-                <div class="flex items-center space-x-2">
-                    <span class="bg-amber-100 text-amber-800 p-2 rounded-lg text-sm font-bold"><i class="fa-solid fa-compass"></i></span>
+        <!-- ================= 頁面 1: 💡 學習指南 ================= -->
+        <section id="tab-guide" class="tab-content space-y-6">
+            <div class="bg-gradient-to-r from-amber-500/10 via-indigo-500/10 to-emerald-500/10 border border-amber-200 rounded-2xl p-6 shadow-sm">
+                <div class="flex items-start gap-4">
+                    <div class="p-3 bg-amber-500 text-white rounded-xl shadow-sm">
+                        <i class="fa-solid fa-compass text-2xl"></i>
+                    </div>
                     <div>
-                        <h2 class="text-base font-extrabold text-slate-900">核心文法弱點地圖</h2>
-                        <p class="text-xs text-slate-500">針對試卷盲點歸納出 5 大高頻文法與解題核心觀念</p>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div class="p-4 bg-amber-50/60 border border-amber-200 rounded-xl space-y-2">
-                        <div class="flex items-center justify-between">
-                            <span class="text-xs font-bold text-amber-800 bg-amber-200/70 px-2 py-0.5 rounded">重點 1</span>
-                            <span class="text-xs text-amber-700 font-bold">Q7 / Q15 / Q36</span>
-                        </div>
-                        <h3 class="font-bold text-slate-800 text-sm">被動語態與時態變化</h3>
-                        <p class="text-xs text-slate-600 leading-relaxed">
-                            • 物做主詞需用被動：<code class="bg-white px-1 font-bold">need to be + p.p.</code> (如 Q7 adjusted)<br>
-                            • 過去至今被完成：<code class="bg-white px-1 font-bold">has/have been + p.p.</code> (如 Q15, Q36)
-                        </p>
-                    </div>
-
-                    <div class="p-4 bg-blue-50/60 border border-blue-200 rounded-xl space-y-2">
-                        <div class="flex items-center justify-between">
-                            <span class="text-xs font-bold text-blue-800 bg-blue-200/70 px-2 py-0.5 rounded">重點 2</span>
-                            <span class="text-xs text-blue-700 font-bold">Q12 / Q37</span>
-                        </div>
-                        <h3 class="font-bold text-slate-800 text-sm">比較結構之指示代名詞</h3>
-                        <p class="text-xs text-slate-600 leading-relaxed">
-                            • 避免名詞重複：比較句中用代名詞代替前述名詞。<br>
-                            • 代替單數/不可數用 <code class="bg-white px-1 font-bold">that</code>；代替複數用 <code class="bg-white px-1 font-bold">those</code> (如 Q12 rules -> those, Q37 number -> that)。
-                        </p>
-                    </div>
-
-                    <div class="p-4 bg-emerald-50/60 border border-emerald-200 rounded-xl space-y-2">
-                        <div class="flex items-center justify-between">
-                            <span class="text-xs font-bold text-emerald-800 bg-emerald-200/70 px-2 py-0.5 rounded">重點 3</span>
-                            <span class="text-xs text-emerald-700 font-bold">Q14 / Q35</span>
-                        </div>
-                        <h3 class="font-bold text-slate-800 text-sm">Not... until... 句型與倒裝</h3>
-                        <p class="text-xs text-slate-600 leading-relaxed">
-                            • 表示「直到...才...」。<br>
-                            • 原句：<code class="bg-white px-1 font-bold">S + did not + V... until...</code><br>
-                            • 倒裝：<code class="bg-white px-1 font-bold">Not until + 時/句, did + S + V</code>
+                        <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+                            高中英文讀書策略與題型解題指南
+                        </h2>
+                        <p class="text-sm text-slate-600 mt-1 leading-relaxed">
+                            整理學測與高二英文考卷的核心補充與備考策略：涵蓋**字彙記憶、閱讀速讀、篇章結構分析、翻譯寫作技巧**，以及雜誌課文（Thomas Edison、Blood Moon、Queenstown、Motion Sickness）精讀重點導覽！
                         </p>
                     </div>
                 </div>
             </div>
 
-            <!-- Deep-Dive Error Diagnosis Cards -->
-            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-6">
-                <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-                    <div class="flex items-center space-x-2">
-                        <span class="bg-rose-100 text-rose-800 p-2 rounded-lg text-sm font-bold"><i class="fa-solid fa-bug"></i></span>
-                        <div>
-                            <h2 class="text-base font-extrabold text-slate-900">核心錯題與陷阱特訓卡</h2>
-                            <p class="text-xs text-slate-500">深入解析試卷常錯題目的語法陷阱與破解解法</p>
+            <!-- 四大應試心法 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+                        <h3 class="font-bold text-indigo-900 flex items-center gap-2 text-base">
+                            <i class="fa-solid fa-headphones text-indigo-600"></i> 1. 聽聲記字與詞性變化連想
+                        </h3>
+                        <span class="text-xs font-semibold px-2.5 py-1 bg-indigo-50 text-indigo-700 rounded-full">單字記憶法</span>
+                    </div>
+                    <ul class="space-y-3 text-sm text-slate-600">
+                        <li class="flex items-start gap-2">
+                            <i class="fa-solid fa-circle-check text-indigo-500 mt-1 text-xs"></i>
+                            <span><strong>搭配 🔊 語音朗讀：</strong>點擊單字旁的喇叭圖示，邊聽標準美式發音邊在大腦中劃分音節（如 `pho-nom-e-non` / `ar-chi-tect`）。</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <i class="fa-solid fa-circle-check text-indigo-500 mt-1 text-xs"></i>
+                            <span><strong>詞性成群記憶：</strong>背單字時，如背 `rely` (v.) 時，聯想 `reliable` (adj.) 與 `reliability` (n.)。</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+                        <h3 class="font-bold text-indigo-900 flex items-center gap-2 text-base">
+                            <i class="fa-solid fa-puzzle-piece text-emerald-600"></i> 2. 篇章結構與克漏字解題
+                        </h3>
+                        <span class="text-xs font-semibold px-2.5 py-1 bg-emerald-50 text-emerald-700 rounded-full">閱讀文章</span>
+                    </div>
+                    <ul class="space-y-3 text-sm text-slate-600">
+                        <li class="flex items-start gap-2">
+                            <i class="fa-solid fa-circle-check text-emerald-500 mt-1 text-xs"></i>
+                            <span><strong>第一步：預讀選項詞性：</strong>文意選填先標註選項詞性（A-J 是 n., v., adj., adv.），依上下文格位精準填入。</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <i class="fa-solid fa-circle-check text-emerald-500 mt-1 text-xs"></i>
+                            <span><strong>第二步：抓邏輯轉折詞：</strong>注意 `However`, `In other words`, `In the end` 等邏輯銜接。</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= 頁面 2: 📕 弱點分析與錯題診斷 ================= -->
+        <section id="tab-weakness" class="tab-content hidden space-y-6">
+            <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                        <i class="fa-solid fa-bullseye text-rose-500"></i> 本卷核心盲點與弱點地圖
+                    </h2>
+                    <span class="text-xs bg-rose-50 text-rose-700 font-semibold px-3 py-1 rounded-full border border-rose-200">重點診斷</span>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                    <span class="px-3 py-1.5 bg-slate-100 text-slate-700 rounded-lg text-xs font-medium"># 被動語態 (need to be adjusted)</span>
+                    <span class="px-3 py-1.5 bg-slate-100 text-slate-700 rounded-lg text-xs font-medium"># 指示代名詞 (that of / those of)</span>
+                    <span class="px-3 py-1.5 bg-slate-100 text-slate-700 rounded-lg text-xs font-medium"># 延後句型 (not... until...)</span>
+                    <span class="px-3 py-1.5 bg-slate-100 text-slate-700 rounded-lg text-xs font-medium"># 詞性轉換 (rely/reliable)</span>
+                </div>
+            </div>
+
+            <!-- 3D 閃卡 -->
+            <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+                <h3 class="text-md font-bold text-slate-800 mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-clone text-indigo-600"></i> 高頻考點單字與詞性變化 3D 閃卡（點擊翻面，點擊 🔊 聽發音）
+                </h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="card-flip-container h-40 cursor-pointer" onclick="this.classList.toggle('flipped')">
+                        <div class="card-flip-inner relative w-full h-full text-center rounded-xl border border-indigo-200 shadow-sm bg-gradient-to-br from-indigo-50 to-white">
+                            <div class="card-front absolute inset-0 flex flex-col items-center justify-center p-4">
+                                <span class="text-xs font-semibold text-indigo-500 uppercase mb-1">動詞 / 形容詞</span>
+                                <h4 class="text-xl font-bold text-slate-800">rely / reliable</h4>
+                                <button onclick="event.stopPropagation(); speakText('rely; reliable')" class="mt-2 text-indigo-600 text-xs flex items-center gap-1 bg-indigo-100 px-2 py-1 rounded">
+                                    <i class="fa-solid fa-volume-high"></i> 發音
+                                </button>
+                            </div>
+                            <div class="card-back absolute inset-0 flex flex-col items-center justify-center p-4 bg-indigo-900 text-white rounded-xl">
+                                <h4 class="text-lg font-bold text-amber-300">依賴 / 可信賴的</h4>
+                                <p class="text-xs text-indigo-100 mt-2">A reliable source of information.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-flip-container h-40 cursor-pointer" onclick="this.classList.toggle('flipped')">
+                        <div class="card-flip-inner relative w-full h-full text-center rounded-xl border border-indigo-200 shadow-sm bg-gradient-to-br from-indigo-50 to-white">
+                            <div class="card-front absolute inset-0 flex flex-col items-center justify-center p-4">
+                                <span class="text-xs font-semibold text-indigo-500 uppercase mb-1">名詞 / 形容詞</span>
+                                <h4 class="text-xl font-bold text-slate-800">stability / stable</h4>
+                                <button onclick="event.stopPropagation(); speakText('stability; stable')" class="mt-2 text-indigo-600 text-xs flex items-center gap-1 bg-indigo-100 px-2 py-1 rounded">
+                                    <i class="fa-solid fa-volume-high"></i> 發音
+                                </button>
+                            </div>
+                            <div class="card-back absolute inset-0 flex flex-col items-center justify-center p-4 bg-indigo-900 text-white rounded-xl">
+                                <h4 class="text-lg font-bold text-amber-300">穩定性 / 穩定的</h4>
+                                <p class="text-xs text-indigo-100 mt-2">develop a stable relationship.</p>
+                            </div>
                         </div>
                     </div>
                 </div>
+            </div>
+        </section>
 
-                <div id="diagnosis-cards-container" class="space-y-4">
-                    <!-- Dynamic rendering via JavaScript -->
+        <!-- ================= 頁面 3: 📝 線上全真題庫 ================= -->
+        <section id="tab-quiz" class="tab-content hidden space-y-6">
+            <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div class="flex items-center gap-2 overflow-x-auto pb-1 md:pb-0">
+                    <button onclick="filterQuizPart('all')" class="part-filter-btn active px-3 py-1.5 rounded-lg text-xs font-semibold bg-indigo-600 text-white">全部題目 (40)</button>
+                    <button onclick="filterQuizPart('p1')" class="part-filter-btn px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-100">一、文意字彙 (1-10)</button>
+                    <button onclick="filterQuizPart('p2')" class="part-filter-btn px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-100">二、綜合測驗 (11-20)</button>
+                    <button onclick="filterQuizPart('p5')" class="part-filter-btn px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-100">五、翻譯題 (35-37)</button>
                 </div>
             </div>
 
-            <!-- Vocabulary & Word Family 3D Flashcards -->
-            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-                <div class="flex justify-between items-center border-b border-slate-100 pb-3">
-                    <div class="flex items-center space-x-2">
-                        <span class="bg-indigo-100 text-indigo-800 p-2 rounded-lg text-sm font-bold"><i class="fa-solid fa-layer-group"></i></span>
-                        <div>
-                            <h2 class="text-base font-extrabold text-slate-900">高頻單字與詞性變化卡 (3D 翻牌)</h2>
-                            <p class="text-xs text-slate-500">點擊卡片翻面即可檢視中文釋義與衍生詞性</p>
-                        </div>
-                    </div>
-                </div>
+            <div id="quiz-container" class="space-y-6"></div>
+        </section>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" id="vocab-flashcards-grid">
-                    <!-- Dynamic rendering via JavaScript -->
+        <!-- ================= 頁面 4: 📚 相關文法與單字說明 ================= -->
+        <section id="tab-grammar-vocab" class="tab-content hidden space-y-6">
+            <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
+                <div class="relative w-full md:w-96">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-400 text-sm"></i>
+                    <input type="text" id="vocab-search" oninput="renderVocabTable()" placeholder="搜尋單字、文法關鍵字或中文..." 
+                        class="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
                 </div>
             </div>
 
-        </div>
-
-        <!-- SECTION 2: INTERACTIVE PRACTICE QUIZ (ALL 40 QUESTIONS) -->
-        <div id="content-quiz" class="hidden space-y-6">
-            
-            <!-- Section Filter & View Switcher Bar -->
-            <div class="bg-white p-4 rounded-2xl border border-slate-200 flex flex-col md:flex-row items-center justify-between gap-4 shadow-sm">
-                
-                <!-- Section Filter Buttons -->
-                <div class="flex flex-wrap items-center gap-1.5 w-full md:w-auto">
-                    <span class="text-xs font-bold text-slate-500 mr-1"><i class="fa-solid fa-filter text-brand-600"></i> 大題篩選：</span>
-                    <button onclick="filterQuizSection('all')" class="quiz-sec-btn active-qsec px-3 py-1.5 rounded-lg text-xs font-bold bg-brand-600 text-white">全部 (40題)</button>
-                    <button onclick="filterQuizSection('p1')" class="quiz-sec-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200">一、字彙 (Q1-10)</button>
-                    <button onclick="filterQuizSection('p2')" class="quiz-sec-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200">二、克漏字 (Q11-20)</button>
-                    <button onclick="filterQuizSection('p3')" class="quiz-sec-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200">三、選填 (Q21-30)</button>
-                    <button onclick="filterQuizSection('p4')" class="quiz-sec-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200">四、篇章 (Q31-34)</button>
-                    <button onclick="filterQuizSection('p5')" class="quiz-sec-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200">五、翻譯 (Q35-37)</button>
-                    <button onclick="filterQuizSection('p6')" class="quiz-sec-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200">六、混合題 (Q38-40)</button>
-                </div>
-
-                <!-- Mode Switcher -->
-                <div class="flex items-center space-x-2 bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs font-bold self-end md:self-auto">
-                    <button onclick="toggleQuizView('list')" id="btn-view-list" class="px-3 py-1.5 rounded-lg bg-white shadow-sm text-brand-600">
-                        <i class="fa-solid fa-list-ul mr-1"></i> 全卷條列模式
-                    </button>
-                    <button onclick="toggleQuizView('single')" id="btn-view-single" class="px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-800">
-                        <i class="fa-solid fa-bolt mr-1"></i> 單題刷題模式
-                    </button>
+            <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+                <h3 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-list-check text-indigo-600"></i> 高頻字彙資料庫 (附 🔊 美語朗讀)
+                </h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm text-slate-600">
+                        <thead class="text-xs text-slate-700 uppercase bg-slate-100 rounded-lg">
+                            <tr>
+                                <th class="p-3">英文單字 / 片語</th>
+                                <th class="p-3">詞性</th>
+                                <th class="p-3">中文釋義</th>
+                                <th class="p-3">衍生詞</th>
+                                <th class="p-3">朗讀發音</th>
+                            </tr>
+                        </thead>
+                        <tbody id="vocab-table-body" class="divide-y divide-slate-100"></tbody>
+                    </table>
                 </div>
             </div>
-
-            <!-- List View Container -->
-            <div id="quiz-list-container" class="space-y-6">
-                <!-- JS renders 40 questions -->
-            </div>
-
-            <!-- Single Mode Card Container -->
-            <div id="quiz-single-container" class="hidden bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-6 max-w-3xl mx-auto">
-                <div class="flex justify-between items-center border-b border-slate-100 pb-3">
-                    <div class="flex items-center space-x-2">
-                        <span id="single-sec-title" class="bg-brand-100 text-brand-800 text-xs font-bold px-2.5 py-1 rounded-md">第一大題：字彙與詞類變化</span>
-                        <span id="single-q-num" class="text-xs font-extrabold text-slate-400">第 1 / 40 題</span>
-                    </div>
-                    <button onclick="randomSingleQ()" class="text-xs text-brand-600 font-bold hover:underline flex items-center gap-1">
-                        <i class="fa-solid fa-shuffle"></i> 隨機抽題
-                    </button>
-                </div>
-
-                <div id="single-q-card-content" class="space-y-4">
-                    <!-- JS renders active question -->
-                </div>
-
-                <div class="flex justify-between items-center pt-4 border-t border-slate-100">
-                    <button onclick="prevSingleQ()" id="btn-single-prev" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition">
-                        <i class="fa-solid fa-arrow-left mr-1"></i> 上一題
-                    </button>
-                    <span id="single-progress-text" class="text-xs font-bold text-slate-500">1 / 40</span>
-                    <button onclick="nextSingleQ()" id="btn-single-next" class="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold rounded-xl transition">
-                        下一題 <i class="fa-solid fa-arrow-right ml-1"></i>
-                    </button>
-                </div>
-            </div>
-
-        </div>
+        </section>
 
     </main>
 
     <script>
-        const QUIZ_QUESTIONS = [
-            // PART 1: Q1 - Q10
-            {
-                id: 1, sec: 'p1', secTitle: '第一大題：詞類變化與文意字彙',
-                type: 'fill',
-                question: '1. Instead of taking the shortest way home, I chose a different r____e with less traffic.',
-                hint: '提示：路線 (n.)',
-                answer: 'route',
-                translation: '我選擇了一條交通較不擁擠的不同路線，而不是走最近的路回家。',
-                explanation: '【考點解析】route (n.) 代表「路線、航線」。根據句意選用 chosen a different route。'
-            },
-            {
-                id: 2, sec: 'p1', secTitle: '第一大題：詞類變化與文意字彙',
-                type: 'fill',
-                question: '2. Space technology enables us to e____e the universe beyond the Earth so that we can discover more about other planets.',
-                hint: '提示：探索 (v.)',
-                answer: 'explore',
-                translation: '太空技術使我們能夠探索地球之外的宇宙，從而發現更多關於其他行星的資訊。',
-                explanation: '【考點解析】enable + O + to + V (使...能夠做...)，空格填入動詞原型 explore (v. 探索)。'
-            },
-            {
-                id: 3, sec: 'p1', secTitle: '第一大題：詞類變化與文意字彙',
-                type: 'fill',
-                question: '3. The company didn\'t make much money last year. There was only a s____t increase in sales.',
-                hint: '提示：微小的 (adj.)',
-                answer: 'slight',
-                translation: '這家公司去年沒賺什麼錢，銷售額只有微幅增長。',
-                explanation: '【考點解析】slight (adj.) 代表「輕微的、微小的」。修飾名詞 increase。'
-            },
-            {
-                id: 4, sec: 'p1', secTitle: '第一大題：詞類變化與文意字彙',
-                type: 'fill',
-                question: '4. At the wedding, Frank p____d to always be there for his wife and support her through thick and thin.',
-                hint: '提示：承諾 (v.) [過去時態]',
-                answer: 'promised',
-                translation: '在婚禮上，法蘭克承諾會永遠陪伴妻子，並同甘共苦。',
-                explanation: '【考點解析】promise (v.) 承諾。敘述過去發生的婚禮事件，需用過去式 promised。'
-            },
-            {
-                id: 5, sec: 'p1', secTitle: '第一大題：詞類變化與文意字彙',
-                type: 'fill',
-                question: '5. Peter\'s u____e way of thinking allows him to put forward ideas that are different from his friends\'.',
-                hint: '提示：獨特的 (adj.)',
-                answer: 'unique',
-                translation: '彼得獨特的思考方式使他能夠提出與朋友不同的想法。',
-                explanation: '【考點解析】unique (adj.) 獨特的、獨一無二的。修飾名詞 way of thinking。'
-            },
-            {
-                id: 6, sec: 'p1', secTitle: '第一大題：詞類變化與文意字彙',
-                type: 'fill',
-                question: '6. The author collected people\'s stories and used them as m____ls for his books.',
-                hint: '提示：素材/材料 (n. 複數)',
-                answer: 'materials',
-                translation: '作者收集了人們的故事，並將其用作書籍的素材。',
-                explanation: '【考點解析】material (n.) 素材、材料。用作複數 materials。'
-            },
-            {
-                id: 7, sec: 'p1', secTitle: '第一大題：詞類變化與文意字彙',
-                type: 'fill',
-                question: '7. Amanda\'s watch needs to be ________ (adjust) by one hour every time she flies from Taiwan to Japan.',
-                hint: '提示：填入 adjust 之適當詞態 (被動態)',
-                answer: 'adjusted',
-                translation: '阿曼達每次從台灣飛往日本時，她的手錶都需要調快一小時。',
-                explanation: '【重點盲點】主詞為物 (watch)，後接 need to be + 過去分詞 (p.p.)，故填入 adjusted。'
-            },
-            {
-                id: 8, sec: 'p1', secTitle: '第一大題：詞類變化與文意字彙',
-                type: 'fill',
-                question: '8. The Internet is not always a ________ (rely) source of information because anyone can publish fake news.',
-                hint: '提示：填入 rely 之形容詞變化',
-                answer: 'reliable',
-                translation: '網際網路並不總是可靠的訊息來源，因為任何人都可以發布假新聞。',
-                explanation: '【重點盲點】修飾名詞 source，動詞 rely (依賴) 需改為形容詞 reliable (可靠的)。'
-            },
-            {
-                id: 9, sec: 'p1', secTitle: '第一大題：詞類變化與文意字彙',
-                type: 'fill',
-                question: '9. Kate and Nick keep going out with each other in hopes of developing a ________ (stability) relationship.',
-                hint: '提示：填入 stability 之形容詞變化',
-                answer: 'stable',
-                translation: '凱特和尼克持續約會，希望發展出穩定的關係。',
-                explanation: '【重點盲點】修飾名詞 relationship，名詞 stability 需轉為形容詞 stable (穩定的)。'
-            },
-            {
-                id: 10, sec: 'p1', secTitle: '第一大題：詞類變化與文意字彙',
-                type: 'fill',
-                question: '10. Many visitors come to this historic site to admire its fine ________ (architect).',
-                hint: '提示：填入 architect 之抽象名詞變化 (建築風格)',
-                answer: 'architecture',
-                translation: '許多遊客來到這個歷史古蹟，欣賞其精美的建築結構/風格。',
-                explanation: '【重點盲點】architect 是「建築師(人)」，遊客欣賞的是「建築風格/建築學 (architecture)」。'
-            },
+        // ================= 單字資料庫 =================
+        const vocabData = [
+            { word: "route", pos: "noun", mean: "路線；途徑", derivative: "reroute (v.)" },
+            { word: "explore", pos: "verb", mean: "探索；探測", derivative: "exploration (n.)" },
+            { word: "slight", pos: "adj.", mean: "輕微的；少量的", derivative: "slightly (adv.)" },
+            { word: "promise", pos: "verb", mean: "承諾；答應", derivative: "promising (adj.)" },
+            { word: "unique", pos: "adj.", mean: "獨特的", derivative: "uniquely (adv.)" },
+            { word: "adjust", pos: "verb", mean: "調整；適應", derivative: "adjustment (n.)" },
+            { word: "rely", pos: "verb", mean: "依賴；依靠", derivative: "reliable (adj.)" },
+            { word: "stable", pos: "adj.", mean: "穩定的", derivative: "stability (n.)" }
+        ];
 
-            // PART 2: Q11 - Q20
-            {
-                id: 11, sec: 'p2', secTitle: '第二大題：綜合測驗 (Cloze)',
-                type: 'choice',
-                passageContext: `<strong>【克漏字文章段落】</strong><br>I'm here reporting live at the first-ever Marshmallow Challenge event in Boston. This event is organized by Canadian author Tom Wujec... Wujec's hope is that companies (11)____ will use the Marshmallow Challenge as a team-building exercise. The rules of the challenge are simpler than (12)____ of many other games... They must (13)____ a free-standing structure... the challenge is (14)____ complete (14)____ the team succeeds in placing the marshmallow on top... The Marshmallow Challenge (15)____ a number of times in the past few years. However, (16)____ previous challenges..., Wujec has divided his teams based on profession... Competing today are five teams: lawyers, CEOs, architects and engineers, business (17)____, and kindergarten students... proving that age and experience are not the most important (18)____ of teamwork. The secret of children's success is their willingness to engage in (19)____. Instead of spending a lot of time talking and planning, they (20)____ work straight away.`,
-                question: '11. Wujec\'s hope is that companies (11)____ will use the Marshmallow Challenge...',
-                options: ['(A) beyond the reach', '(B) around the world', '(C) around the corner', '(D) out of this world'],
-                answer: '(B) around the world',
-                translation: '烏傑克希望全世界的公司都能將棉花糖挑戰用作團隊建設練習。',
-                explanation: '【考點解析】around the world 意為「全世界的」，用於修飾 companies。'
-            },
-            {
-                id: 12, sec: 'p2', secTitle: '第二大題：綜合測驗 (Cloze)',
-                type: 'choice',
-                question: '12. The rules of the challenge are simpler than (12)____ of many other games.',
-                options: ['(A) this', '(B) these', '(C) that', '(D) those'],
-                answer: '(D) those',
-                translation: '這項挑戰的規則比許多其他遊戲的規則更簡單。',
-                explanation: '【指示代名詞考點】指代前面出現過的複數名詞 rules，比較結構中用 those 代表 (those of...)。'
-            },
-            {
-                id: 13, sec: 'p2', secTitle: '第二大題：綜合測驗 (Cloze)',
-                type: 'choice',
-                question: '13. They must (13)____ a free-standing structure with the spaghetti, tape, and string.',
-                options: ['(A) employ', '(B) innovate', '(C) construct', '(D) confine'],
-                answer: '(C) construct',
-                translation: '他們必須用義大利麵、膠帶和繩子建造一個獨立立起的結構。',
-                explanation: '【動詞語義】construct (v.) 建造、構造。搭配 structure。'
-            },
-            {
-                id: 14, sec: 'p2', secTitle: '第二大題：綜合測驗 (Cloze)',
-                type: 'choice',
-                question: '14. Also, the challenge is (14)____ complete ____ the team succeeds in placing the marshmallow on top.',
-                options: ['(A) as; as', '(B) not; but', '(C) so; that', '(D) not; until'],
-                answer: '(D) not; until',
-                translation: '此外，直到團隊成功將棉花糖放在最頂端，挑戰才算完成。',
-                explanation: '【句型解析】not... until... 句型 (直到...才...)。'
-            },
-            {
-                id: 15, sec: 'p2', secTitle: '第二大題：綜合測驗 (Cloze)',
-                type: 'choice',
-                question: '15. The Marshmallow Challenge (15)____ a number of times in the past few years.',
-                options: ['(A) has held', '(B) had held', '(C) has been held', '(D) has been holding'],
-                answer: '(C) has been held',
-                translation: '棉花糖挑戰在過去幾年中已經被舉辦了許多次。',
-                explanation: '【被動語態考點】in the past few years 表示過去持續至今，且挑戰是被舉辦，用現在完成被動態 (has been + p.p.)。'
-            },
-            {
-                id: 16, sec: 'p2', secTitle: '第二大題：綜合測驗 (Cloze)',
-                type: 'choice',
-                question: '16. However, (16)____ previous challenges in which teams were formed according to age or sex...',
-                options: ['(A) besides', '(B) regarding', '(C) unlike', '(D) during'],
-                answer: '(C) unlike',
-                translation: '然而，與先前根據年齡或性別分組的挑戰不同，烏傑克這次按職業進行分組。',
-                explanation: '【介系詞考點】unlike (prep.) 與...不同、不像。表示轉折與對比。'
-            },
-            {
-                id: 17, sec: 'p2', secTitle: '第二大題：綜合測驗 (Cloze)',
-                type: 'choice',
-                question: '17. Competing today are five teams: lawyers, CEOs, architects and engineers, business (17)____, and kindergartners.',
-                options: ['(A) rankings', '(B) approaches', '(C) capabilities', '(D) graduates'],
-                answer: '(D) graduates',
-                translation: '今天競爭的五個團隊包括：律師、CEO、建築師與工程師、商學院畢業生以及幼稚園小朋友。',
-                explanation: '【名詞搭配】business graduates 指「商學院畢業生」。'
-            },
-            {
-                id: 18, sec: 'p2', secTitle: '第二大題：綜合測驗 (Cloze)',
-                type: 'choice',
-                question: '18. ...proving that age and experience are not the most important (18)____ of teamwork.',
-                options: ['(A) collaborations', '(B) elements', '(C) structures', '(D) corporations'],
-                answer: '(B) elements',
-                translation: '證明了年齡和經驗並非團隊合作中最重要要素。',
-                explanation: '【名詞解析】element (n.) 要素、元素。'
-            },
-            {
-                id: 19, sec: 'p2', secTitle: '第二大題：綜合測驗 (Cloze)',
-                type: 'choice',
-                question: '19. The secret of children\'s success is their willingness to engage in (19)____.',
-                options: ['(A) trial and error', '(B) good and evil', '(C) right and wrong', '(D) success and failure'],
-                answer: '(A) trial and error',
-                translation: '孩子們成功的祕訣在於他們願意進行反覆嘗試與摸索。',
-                explanation: '【習慣用語】trial and error 代表「嘗試錯誤、反覆試驗」。'
-            },
-            {
-                id: 20, sec: 'p2', secTitle: '第二大題：綜合測驗 (Cloze)',
-                type: 'choice',
-                question: '20. Instead of spending a lot of time talking and planning, they (20)____ work straight away.',
-                options: ['(A) are in charge', '(B) roll up their sleeves', '(C) get down to', '(D) figure out'],
-                answer: '(C) get down to',
-                translation: '他們沒有花大量時間討論和計畫，而是立即開始著手工作。',
-                explanation: '【片語解析】get down to + N/V-ing 意為「開始著手做某事」。'
-            },
+        // ================= 題目資料庫 =================
+        const quizQuestions = [
+            { id: 1, part: "p1", partTitle: "一、文意字彙", type: "input", text: "Instead of taking the shortest way home, I chose a different r______e with less traffic.", ans: "route", exp: "路線。從句意可知填 route。", trans: "我選擇了一條車流量較少的不同路線。" },
+            { id: 2, part: "p1", partTitle: "一、文意字彙", type: "input", text: "Space technology enables us to ex______e the universe beyond the Earth.", ans: "explore", exp: "探索。enable sb to V（使某人能做…），填 explore。", trans: "太空科技使我們能夠探索地球以外的宇宙。" },
+            { id: 7, part: "p1", partTitle: "一、文意字彙", type: "input", text: "Amanda's watch needs to be ______ (adjust) by one hour every time she flies from Taiwan to Japan.", ans: "adjusted", exp: "被動態需求。need to be + p.p.，手錶需要「被調整」，填 adjusted。", trans: "她的手錶都需要調快一小時。" },
+            { id: 11, part: "p2", partTitle: "二、綜合測驗", type: "choice", text: "Wujec's hope is that companies [11]______ will use the Marshmallow Challenge as a team-building exercise.", options: ["(A) beyond the reach", "(B) around the world", "(C) around the corner", "(D) out of this world"], ans: "B", exp: "上下文語意為「全世界的公司」，選 around the world。", trans: "Wujec 希望全世界的公司都能將棉花糖挑戰用作團隊建設練習。" },
+            { id: 35, part: "p5", partTitle: "五、翻譯題", type: "input", text: "Vivian 直到去年上大學才學會如何騎機車。(6%)", ans: "Vivian did not learn how to ride a scooter until she went to college last year.", exp: "重點句型：Not... until...（直到…才…）。時態為過去式。", trans: "Vivian did not learn how to ride a scooter until she went to college last year." }
+        ];
 
-            // PART 3: Q21 - Q30
-            {
-                id: 21, sec: 'p3', secTitle: '第三大題：文意選填',
-                type: 'choice',
-                passageContext: `<strong>【選項盒】</strong><br>(A) mentioned &nbsp; (B) introduce &nbsp; (C) figure out &nbsp; (D) charge &nbsp; (E) succeed<br>(F) feedback &nbsp; (G) hosted &nbsp; (H) activity &nbsp; (I) collaborate &nbsp; (J) focus on<br><br><strong>【文章段落】</strong><br>Tom Wujec is a famous Canadian writer and speaker... In fact, he has (21)____ over seventy of these events worldwide. In these workshops, Wujec often gets participants working together on a(n) (22)____ known as the Marshmallow Challenge. Back in 2010, he gave a TED Talk to (23)____ how this team-building exercise works. Through this task, people learn to (24)____ effectively communicating with one another. During his talk, he also (25)____ how people of different ages... perform. In addition, he spoke about the kinds of negative behavior that people should avoid when they (26)____ with others. Finally, he shared key findings... It has received very positive (27)____... offers insights into how groups can (28)____. Those who are in (29)____ can use these insights... help them (30)____ how to build stronger groups.`,
-                question: '21. In fact, he has (21)____ over seventy of these events worldwide.',
-                options: ['(A) mentioned', '(B) introduce', '(C) figure out', '(D) charge', '(E) succeed', '(F) feedback', '(G) hosted', '(H) activity', '(I) collaborate', '(J) focus on'],
-                answer: '(G) hosted',
-                translation: '事實上，他已經在世界各地主辦了超過七十場這樣的活動。',
-                explanation: '【文法與語義】has + p.p.，填入 hosted (主辦)。'
-            },
-            {
-                id: 22, sec: 'p3', secTitle: '第三大題：文意選填',
-                type: 'choice',
-                question: '22. ...gets participants working together on a(n) (22)____ known as the Marshmallow Challenge.',
-                options: ['(A) mentioned', '(B) introduce', '(C) figure out', '(D) charge', '(E) succeed', '(F) feedback', '(G) hosted', '(H) activity', '(I) collaborate', '(J) focus on'],
-                answer: '(H) activity',
-                translation: '讓參與者一起進行一項名為棉花糖挑戰的活動。',
-                explanation: '【文法與語義】a(n) + 單數名詞，填入 activity (活動)。'
-            },
-            {
-                id: 23, sec: 'p3', secTitle: '第三大題：文意選填',
-                type: 'choice',
-                question: '23. ...he gave a TED Talk to (23)____ how this team-building exercise works.',
-                options: ['(A) mentioned', '(B) introduce', '(C) figure out', '(D) charge', '(E) succeed', '(F) feedback', '(G) hosted', '(H) activity', '(I) collaborate', '(J) focus on'],
-                answer: '(B) introduce',
-                translation: '他發表了一場 TED 演講來介紹這個團隊建構運動是如何運作的。',
-                explanation: '【文法與語義】to + 動詞原型表目的，填入 introduce (介紹)。'
-            },
-            {
-                id: 24, sec: 'p3', secTitle: '第三大題：文意選填',
-                type: 'choice',
-                question: '24. Through this task, people learn to (24)____ effectively communicating with one another.',
-                options: ['(A) mentioned', '(B) introduce', '(C) figure out', '(D) charge', '(E) succeed', '(F) feedback', '(G) hosted', '(H) activity', '(I) collaborate', '(J) focus on'],
-                answer: '(J) focus on',
-                translation: '透過這項任務，人們學會專注於彼此之間的有效溝通。',
-                explanation: '【文法與語義】focus on + V-ing (專注於...)。'
-            },
-            {
-                id: 25, sec: 'p3', secTitle: '第三大題：文意選填',
-                type: 'choice',
-                question: '25. During his talk, he also (25)____ how people of different ages and backgrounds generally perform.',
-                options: ['(A) mentioned', '(B) introduce', '(C) figure out', '(D) charge', '(E) succeed', '(F) feedback', '(G) hosted', '(H) activity', '(I) collaborate', '(J) focus on'],
-                answer: '(A) mentioned',
-                translation: '在演講中，他也提及了不同年齡和背景的人通常表現如何。',
-                explanation: '【文法與語義】填入過去式動詞 mentioned (提及)。'
-            },
-            {
-                id: 26, sec: 'p3', secTitle: '第三大題：文意選填',
-                type: 'choice',
-                question: '26. ...negative behavior that people should avoid when they (26)____ with others.',
-                options: ['(A) mentioned', '(B) introduce', '(C) figure out', '(D) charge', '(E) succeed', '(F) feedback', '(G) hosted', '(H) activity', '(I) collaborate', '(J) focus on'],
-                answer: '(I) collaborate',
-                translation: '人們在與他人合作時應該避免的負面行為。',
-                explanation: '【文法與語義】collaborate with... (與...合作)。'
-            },
-            {
-                id: 27, sec: 'p3', secTitle: '第三大題：文意選填',
-                type: 'choice',
-                question: '27. Wujec\'s talk itself... has received very positive (27)____.',
-                options: ['(A) mentioned', '(B) introduce', '(C) figure out', '(D) charge', '(E) succeed', '(F) feedback', '(G) hosted', '(H) activity', '(I) collaborate', '(J) focus on'],
-                answer: '(F) feedback',
-                translation: '烏傑克的演講本身獲得了非常積極正面的迴響與評價。',
-                explanation: '【搭配詞】positive feedback (正面的回饋/評價)。'
-            },
-            {
-                id: 28, sec: 'p3', secTitle: '第三大題：文意選填',
-                type: 'choice',
-                question: '28. ...offers valuable insights into how groups can (28)____.',
-                options: ['(A) mentioned', '(B) introduce', '(C) figure out', '(D) charge', '(E) succeed', '(F) feedback', '(G) hosted', '(H) activity', '(I) collaborate', '(J) focus on'],
-                answer: '(E) succeed',
-                translation: '提供了關於團隊如何獲得成功的寶貴見解。',
-                explanation: '【文法與語義】助動詞 can + 動詞原型 succeed (成功)。'
-            },
-            {
-                id: 29, sec: 'p3', secTitle: '第三大題：文意選填',
-                type: 'choice',
-                question: '29. Those who are in (29)____ can use these insights...',
-                options: ['(A) mentioned', '(B) introduce', '(C) figure out', '(D) charge', '(E) succeed', '(F) feedback', '(G) hosted', '(H) activity', '(I) collaborate', '(J) focus on'],
-                answer: '(D) charge',
-                translation: '管理者或領導者 (in charge) 可以利用這些見解...',
-                explanation: '【慣用語】in charge 意為「負責、掌管」。'
-            },
-            {
-                id: 30, sec: 'p3', secTitle: '第三大題：文意選填',
-                type: 'choice',
-                question: '30. ...help them (30)____ how to build stronger and closer groups.',
-                options: ['(A) mentioned', '(B) introduce', '(C) figure out', '(D) charge', '(E) succeed', '(F) feedback', '(G) hosted', '(H) activity', '(I) collaborate', '(J) focus on'],
-                answer: '(C) figure out',
-                translation: '幫助他們弄清楚如何建立更強大、更緊密的團隊。',
-                explanation: '【片語解析】figure out (弄清楚、想出辦法)。'
-            },
+        let userAnswers = {};
+        let activePartFilter = 'all';
 
-            // PART 4: Q31 - Q34
-            {
-                id: 31, sec: 'p4', secTitle: '第四大題：篇章結構',
-                type: 'choice',
-                passageContext: `<strong>【篇章結構選項】</strong><br>(A) However, as two studies have shown, that is not always the case.<br>(B) These studies of the game Concentration confirm that the performance levels of children and adults... are quite closely matched.<br>(C) In other words, being able to anticipate your opponent's moves can greatly improve your chances of success.<br>(D) In the end, the player who collects the most cards wins.<br>(E) The researchers concluded that the adults achieved the best performance overall because they had an efficient strategy...`,
-                question: '31. Most of us are familiar with Concentration. ...In order to win, of course, you must have a good memory... [31]',
-                options: ['(A)', '(B)', '(C)', '(D)', '(E)'],
-                answer: '(D)',
-                translation: '解析：最後收集到最多卡片的玩家獲得勝利。',
-                explanation: '【文章邏輯】[31] 前文在說明記憶遊戲規則，(D) 句接續說明最終勝負條件 (In the end, the player who collects the most cards wins)。'
-            },
-            {
-                id: 32, sec: 'p4', secTitle: '第四大題：篇章結構',
-                type: 'choice',
-                question: '32. Since the brains of adults are more developed..., it\'s easy to assume that adult players must be much better than younger ones. [32]',
-                options: ['(A)', '(B)', '(C)', '(D)', '(E)'],
-                answer: '(A)',
-                translation: '解析：然而，正如兩項研究所表明的，情況並不總是如此。',
-                explanation: '【文章邏輯】前文說人們習慣假設成人玩得比較好，[32] 填入轉折句 (A) However... that is not always the case 引出相反的研究結果。'
-            },
-            {
-                id: 33, sec: 'p4', secTitle: '第四大題：篇章結構',
-                type: 'choice',
-                question: '33. Comparing 5- and 10-year-old players with adult players... In addition, 5-year-olds made fewer spatial errors... [33]',
-                options: ['(A)', '(B)', '(C)', '(D)', '(E)'],
-                answer: '(E)',
-                translation: '解析：研究人員得出結論，成年人總體表現最好是因為他們有高效的新卡探索策略。',
-                explanation: '【文章邏輯】[33] 位於第一項研究段落末尾，(E) 總結研究人員對該研究結果的結論 (The researchers concluded...)。'
-            },
-            {
-                id: 34, sec: 'p4', secTitle: '第四大題：篇章結構',
-                type: 'choice',
-                question: '34. ...the adults weren\'t much better than the children... [34] Although the children did not necessarily beat the adults, they performed quite well...',
-                options: ['(A)', '(B)', '(C)', '(D)', '(E)'],
-                answer: '(B)',
-                translation: '解析：這些關於專注力遊戲的研究證實，兒童和成年人在遊戲中的表現水平非常接近。',
-                explanation: '【文章邏輯】[34] 為全篇文章總結，(B) 總結兩項研究證實成人與小孩表現非常接近 (closely matched)。'
-            },
-
-            // PART 5: Q35 - Q37
-            {
-                id: 35, sec: 'p5', secTitle: '第五大題：翻譯與句型練習',
-                type: 'fill',
-                question: '35. Vivian 直到去年上大學才學會如何騎機車。',
-                hint: '請輸入包含 did not learn ... until ... 的英文句子',
-                answer: 'Vivian did not learn how to ride a scooter until she went to college last year.',
-                translation: '標準答案：Vivian did not learn how to ride a scooter until she went to college last year.',
-                explanation: '【句型解析】Not... until... 句型。<br>【倒裝改寫】Not until Vivian went to college last year did she learn how to ride a scooter.'
-            },
-            {
-                id: 36, sec: 'p5', secTitle: '第五大題：翻譯與句型練習',
-                type: 'fill',
-                question: '36. 一所新的小學已經被設立，用來實驗教育的創新理念。',
-                hint: '請輸入包含 has been established 的英文句子',
-                answer: 'A new elementary school has been established to experiment with innovative educational concepts.',
-                translation: '標準答案：A new elementary school has been established to experiment with innovative educational concepts.',
-                explanation: '【句型解析】「已經被設立」需用現在完成被動態 has been + p.p.；「用來實驗」使用不定詞 to experiment with...'
-            },
-            {
-                id: 37, sec: 'p5', secTitle: '第五大題：翻譯與句型練習',
-                type: 'fill',
-                question: '37. 它的學生人數比一所普通學校的學生少。(請以指示代名詞 that / those 造句)',
-                hint: '請輸入包含 that of an ordinary school 的英文句子',
-                answer: 'Its number of students is smaller than that of an ordinary school.',
-                translation: '標準答案：Its number of students is smaller than that of an ordinary school.',
-                explanation: '【句型解析】比較結構中，使用指示代名詞 that 代替前方單數名詞 the number，避免重複。'
-            },
-
-            // PART 6: Q38 - Q40
-            {
-                id: 38, sec: 'p6', secTitle: '第六大題：混合題與閱讀理解',
-                type: 'fill',
-                passageContext: `<strong>【閱讀理解文章】</strong><br>Months ago, posts showing how a person looks now and looked ten years ago popped up on social networking websites like Instagram, Twitter, and Facebook... Some psychologists were concerned about these posts, claiming they might leave a person feeling hopeless... The seemingly positive comments could appear to be nothing but cold comfort. Some psychologists held a different view, though. Instead of <u>refuting</u> the effects of the ten-year challenge, they viewed it as an opportunity to show a person's maturity and self-growth... "Be Bold, Claim Old." Perhaps the real challenge lies not in physical change but in psychological growth.`,
-                question: '38. Which word in the second paragraph means "stating that something does not exist or is untrue"?',
-                hint: '請從文章第二段找出適當動詞 (V-ing 形式)',
-                answer: 'refuting',
-                translation: '答案：refuting (反駁/駁斥)',
-                explanation: '【關鍵字尋找】文章第二段 "Instead of refuting the effects..."，refuting 意為「反駁、駁斥」，即聲稱某事不真實。'
-            },
-            {
-                id: 39, sec: 'p6', secTitle: '第六大題：混合題與閱讀理解',
-                type: 'choice',
-                question: '39. From (A) to (F) below, choose the ONES that are true about the challenge mentioned in the passage. (多選題)',
-                options: ['(A) The impact of the challenge depended on how individuals perceived aging.', '(B) The phrase "Be Bold, Claim Old" promotes a positive perspective on aging.', '(C) The challenge was designed to prove that people always look better as they age.', '(D) The main purpose was to promote medication for mental health.', '(E) Participants were required to write an essay.', '(F) An overwhelming majority of psychologists agreed that the challenge was harmful.'],
-                answer: '(A), (B)',
-                translation: '正確選項為 (A) 與 (B)',
-                explanation: '【細節比對】<br>(A) 正確：挑戰的影響取決於個人如何看待老化。<br>(B) 正確："Be Bold, Claim Old" 提倡對老化的積極態度。<br>(C)(D)(E)(F) 文章皆未提及或與內文相反。'
-            },
-            {
-                id: 40, sec: 'p6', secTitle: '第六大題：混合題與閱讀理解',
-                type: 'fill',
-                question: '40. 填空：A social media trend encouraged users to (1)________ their current appearance with how they looked a decade ago, emphasizing the importance of (2)________ aging instead of denying it.',
-                hint: '請輸入兩個單字，例如: compare, celebrating',
-                answer: 'compare, celebrating',
-                translation: '答案：(1) compare  (2) celebrating (或 accepting)',
-                explanation: '【填空解析】(1) compare... with... (將現貌與十年前比較)；(2) celebrating/accepting aging (慶祝/接納老化而不是否認它)。'
+        // ================= 語音朗讀 API =================
+        window.speakText = function(text) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'en-US';
+                utterance.rate = 0.9;
+                window.speechSynthesis.speak(utterance);
+            } else {
+                alert('您的瀏覽器暫不支援語音功能');
             }
-        ];
-
-        const DIAGNOSIS_CARDS_DB = [
-            {
-                tag: 'Q7-Q10 詞性變化與被動態',
-                sec: 'p1',
-                title: 'Q7: Amanda\'s watch needs to be ________ (adjust)...',
-                misconception: '學生常誤填原形 adjust 或主動態 adjusting。',
-                correctKey: 'adjusted (被動態 p.p.)',
-                tip: '💡 口訣：物做主詞 need to be + p.p.！手錶「被調整」必須用過去分詞 adjusted。'
-            },
-            {
-                tag: 'Q11-Q20 克漏字語法陷阱',
-                sec: 'p2',
-                title: 'Q12 & Q15: 指示代名詞 those & 完成被動態 has been held',
-                misconception: 'Q12 誤選 that (忽略主詞 rules 是複數)；Q15 誤選主動態 has held。',
-                correctKey: 'Q12: those / Q15: has been held',
-                tip: '💡 口訣：代替前文複數名詞 rules 用 those！挑戰賽「被舉辦」且持續至今用 has been held。'
-            },
-            {
-                tag: 'Q32-Q34 篇章結構邏輯',
-                sec: 'p3',
-                title: 'Q32: ...assume adult players must be much better. [32]',
-                misconception: '忽略上下文的語意轉折，選錯無連貫性的句子。',
-                correctKey: '(A) However, as two studies have shown, that is not always the case.',
-                tip: '💡 解題關鍵：前文說「大家以為大人玩得比較好」，後文實驗相反，中間必須接轉折句 However!'
-            },
-            {
-                tag: 'Q35-Q37 翻譯句型與代名詞',
-                sec: 'p5',
-                title: 'Q36 & Q37: 被動態 has been established & 比較代名詞 that of',
-                misconception: 'Q36 漏掉 been 或錯用單複數；Q37 重複寫 the number of 而非指示代名詞 that。',
-                correctKey: 'Q36: has been established / Q37: that of',
-                tip: '💡 句型秘訣：「已經被設立」= has been established；比較句「……的學生人數」用 that of 代替單數名詞 (number)。'
-            },
-            {
-                tag: 'Q38-Q40 閱讀與混合題',
-                sec: 'p6',
-                title: 'Q38: Which word in paragraph 2 means "stating that something is untrue"?',
-                misconception: '直接從頭閱讀而浪費時間，未能定位第二段動詞。',
-                correctKey: 'refuting (V-ing 形式)',
-                tip: '💡 尋找技巧：直接鎖定第二段 "Instead of refuting the effects..."，refute 即為反駁/駁斥。'
-            }
-        ];
-
-        const VOCAB_FLASHCARDS_DB = [
-            { front: 'rely (v.)', pos: 'Verb', meaning: '依賴、依靠', family: '名詞: reliance / 形容詞: reliable' },
-            { front: 'reliable (adj.)', pos: 'Adjective', meaning: '可信賴的、可靠的', family: '搭配: a reliable source of info' },
-            { front: 'stable (adj.)', pos: 'Adjective', meaning: '穩定的', family: '名詞: stability / 搭配: a stable relationship' },
-            { front: 'architecture (n.)', pos: 'Noun', meaning: '建築學、建築風格', family: '人物名詞: architect (建築師)' },
-            { front: 'adjust (v.)', pos: 'Verb', meaning: '調整、適應', family: '名詞: adjustment / 被動: need to be adjusted' },
-            { front: 'innovative (adj.)', pos: 'Adjective', meaning: '創新的', family: '動詞: innovate / 名詞: innovation' }
-        ];
-
-        let userProgress = {}; // { qId: { answered: true, isCorrect: true, userAns: '' } }
-        let singleQIdx = 0;
-
-        window.onload = function() {
-            renderWeaknessSection();
-            renderQuizQuestions('all');
-            renderSingleCard(singleQIdx);
-            updateGlobalStats();
         };
 
-        // Switch main tabs (Pure Chinese name based, no Tab 1 / Tab 2 text)
-        function switchMainTab(targetSection) {
-            document.querySelectorAll('.tab-main-btn').forEach(btn => {
-                btn.classList.remove('active', 'border-b-2', 'border-brand-600', 'text-brand-600', 'bg-white', 'shadow-sm');
-                btn.classList.add('text-slate-500');
+        // ================= 全域分頁切換 (徹底修復切換 Bug) =================
+        window.switchTab = function(tabId) {
+            // 1. 隱藏所有 tab 頁面
+            document.querySelectorAll('.tab-content').forEach(el => {
+                el.classList.add('hidden');
             });
 
-            document.getElementById('content-weakness').classList.add('hidden');
-            document.getElementById('content-quiz').classList.add('hidden');
-
-            const activeBtn = document.getElementById(`nav-btn-${targetSection}`);
-            activeBtn.classList.add('active', 'border-b-2', 'border-brand-600', 'text-brand-600', 'bg-white', 'shadow-sm');
-            activeBtn.classList.remove('text-slate-500');
-
-            document.getElementById(`content-${targetSection}`).classList.remove('hidden');
-        }
-
-        // Update Dashboard Metrics
-        function updateGlobalStats() {
-            const total = QUIZ_QUESTIONS.length;
-            const answeredKeys = Object.keys(userProgress);
-            const completedCount = answeredKeys.length;
-            
-            let correctCount = 0;
-            let wrongCount = 0;
-
-            answeredKeys.forEach(key => {
-                if (userProgress[key].isCorrect) {
-                    correctCount++;
-                } else {
-                    wrongCount++;
-                }
+            // 2. 重置所有按鈕樣式
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('bg-indigo-600', 'text-white', 'shadow-md');
+                btn.classList.add('text-indigo-200', 'hover:bg-indigo-800/50');
             });
 
-            const rate = completedCount > 0 ? Math.round((correctCount / completedCount) * 100) : 0;
+            // 3. 顯示選定頁面
+            const targetSection = document.getElementById(tabId);
+            if (targetSection) {
+                targetSection.classList.remove('hidden');
+            }
 
-            document.getElementById('stat-completed').innerText = `${completedCount} / ${total}`;
-            document.getElementById('stat-correct').innerText = correctCount;
-            document.getElementById('stat-wrong').innerText = wrongCount;
-            document.getElementById('stat-rate').innerText = `${rate}%`;
-        }
+            // 4. 高亮選定按鈕
+            const targetBtn = document.getElementById('btn-' + tabId);
+            if (targetBtn) {
+                targetBtn.classList.add('bg-indigo-600', 'text-white', 'shadow-md');
+                targetBtn.classList.remove('text-indigo-200');
+            }
+        };
 
-        function renderWeaknessSection() {
-            // Diagnosis Cards
-            const diagContainer = document.getElementById('diagnosis-cards-container');
-            diagContainer.innerHTML = '';
+        // ================= 渲染單字表 =================
+        window.renderVocabTable = function() {
+            const tbody = document.getElementById('vocab-table-body');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+            const searchKey = document.getElementById('vocab-search')?.value.toLowerCase() || '';
 
-            DIAGNOSIS_CARDS_DB.forEach(card => {
-                const el = document.createElement('div');
-                el.className = 'p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-2 hover:border-brand-300 transition';
-                el.innerHTML = `
-                    <div class="flex items-center justify-between">
-                        <span class="text-xs font-bold text-slate-700 bg-slate-200 px-2 py-0.5 rounded">${card.tag}</span>
-                        <span class="text-xs text-brand-600 font-bold"><i class="fa-solid fa-key mr-1"></i>標準答案: ${card.correctKey}</span>
-                    </div>
-                    <h4 class="font-bold text-slate-800 text-sm">${card.title}</h4>
-                    <p class="text-xs text-rose-700 font-medium">⚠️ 常見迷思：${card.misconception}</p>
-                    <div class="p-2.5 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-900 font-medium">
-                        ${card.tip}
-                    </div>
+            vocabData.forEach(item => {
+                if (searchKey && !item.word.toLowerCase().includes(searchKey) && !item.mean.includes(searchKey)) return;
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50 transition-colors";
+                tr.innerHTML = `
+                    <td class="p-3 font-semibold text-indigo-950">${item.word}</td>
+                    <td class="p-3 text-xs text-slate-500 font-mono">${item.pos}</td>
+                    <td class="p-3 text-slate-700 font-medium">${item.mean}</td>
+                    <td class="p-3 text-xs text-slate-500">${item.derivative}</td>
+                    <td class="p-3">
+                        <button onclick="speakText('${item.word}')" class="px-2.5 py-1 bg-indigo-100 text-indigo-700 hover:bg-indigo-200 rounded-lg text-xs font-semibold flex items-center gap-1">
+                            <i class="fa-solid fa-volume-high"></i> 發音
+                        </button>
+                    </td>
                 `;
-                diagContainer.appendChild(el);
+                tbody.appendChild(tr);
             });
+        };
 
-            // Flashcards
-            const flashContainer = document.getElementById('vocab-flashcards-grid');
-            flashContainer.innerHTML = '';
-
-            VOCAB_FLASHCARDS_DB.forEach((card, idx) => {
-                const cardEl = document.createElement('div');
-                cardEl.className = 'h-36 perspective-1000 cursor-pointer';
-                cardEl.onclick = () => {
-                    document.getElementById(`vocab-card-inner-${idx}`).classList.toggle('rotate-y-180');
-                };
-
-                cardEl.innerHTML = `
-                    <div id="vocab-card-inner-${idx}" class="relative w-full h-full duration-500 transform-style-3d transition-transform">
-                        <!-- Front -->
-                        <div class="absolute w-full h-full bg-white rounded-2xl border border-slate-200 p-4 shadow-sm flex flex-col justify-between backface-hidden">
-                            <span class="text-xs font-bold text-brand-600 bg-brand-50 w-max px-2.5 py-0.5 rounded-md">${card.pos}</span>
-                            <div class="text-center">
-                                <h4 class="text-base font-black text-slate-800">${card.front}</h4>
-                                <p class="text-xs text-slate-400 mt-1"><i class="fa-solid fa-hand-pointer mr-1"></i>點擊翻面檢視解析</p>
-                            </div>
-                            <span class="text-right text-xs text-slate-300"><i class="fa-solid fa-rotate"></i></span>
-                        </div>
-                        <!-- Back -->
-                        <div class="absolute w-full h-full bg-brand-600 text-white rounded-2xl p-4 shadow-sm flex flex-col justify-between backface-hidden rotate-y-180">
-                            <span class="text-xs font-bold bg-brand-700 w-max px-2.5 py-0.5 rounded-md text-brand-100">釋義與詞性變化</span>
-                            <div class="text-center space-y-1">
-                                <h5 class="text-sm font-bold">${card.meaning}</h5>
-                                <p class="text-xs text-brand-100">${card.family}</p>
-                            </div>
-                            <span class="text-right text-xs text-brand-200"><i class="fa-solid fa-rotate"></i></span>
-                        </div>
-                    </div>
-                `;
-                flashContainer.appendChild(cardEl);
-            });
-        }
-
-        function renderQuizQuestions(secFilter = 'all') {
-            const container = document.getElementById('quiz-list-container');
+        // ================= 渲染題目與高亮機制 =================
+        window.renderQuizQuestions = function() {
+            const container = document.getElementById('quiz-container');
+            if (!container) return;
             container.innerHTML = '';
 
-            const filtered = secFilter === 'all' 
-                ? QUIZ_QUESTIONS 
-                : QUIZ_QUESTIONS.filter(q => q.sec === secFilter);
+            const filtered = quizQuestions.filter(q => activePartFilter === 'all' || q.part === activePartFilter);
 
             filtered.forEach(q => {
                 const card = document.createElement('div');
-                card.className = 'bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-4';
+                card.className = "bg-white rounded-2xl p-6 border border-slate-200 shadow-sm";
+                card.id = `q-card-${q.id}`;
 
-                let statusBadge = '<span class="text-xs font-bold text-slate-400 bg-slate-100 px-2.5 py-1 rounded-md">未作答</span>';
-                if (userProgress[q.id]) {
-                    if (userProgress[q.id].isCorrect) {
-                        statusBadge = '<span class="text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-md"><i class="fa-solid fa-circle-check mr-1"></i> 正確！</span>';
-                    } else {
-                        statusBadge = '<span class="text-xs font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-md"><i class="fa-solid fa-circle-xmark mr-1"></i> 待複習</span>';
-                    }
-                }
-
-                let passageContextHTML = q.passageContext ? `<div class="bg-slate-50 p-4 rounded-xl border border-slate-200 text-xs text-slate-700 leading-relaxed font-sans mb-3">${q.passageContext}</div>` : '';
-
-                let inputAreaHTML = '';
+                let optionsHtml = '';
                 if (q.type === 'choice') {
-                    inputAreaHTML = `
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-3">
-                            ${q.options.map(opt => `
-                                <button onclick="submitQuizAns(${q.id}, '${opt.replace(/'/g, "\\'")}')" 
-                                    class="text-left px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-medium hover:bg-brand-50 hover:border-brand-300 transition">
-                                    ${opt}
+                    optionsHtml = `
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-4">
+                            ${q.options.map((opt) => `
+                                <button onclick="selectOption(${q.id}, '${opt.charAt(1)}', this)" 
+                                    class="option-btn-${q.id} w-full text-left p-3 rounded-xl border border-slate-200 text-sm hover:border-indigo-400 transition-all flex items-center justify-between">
+                                    <span>${opt}</span>
+                                    <i class="fa-regular fa-circle text-slate-300 check-icon"></i>
                                 </button>
                             `).join('')}
                         </div>
                     `;
                 } else {
-                    inputAreaHTML = `
-                        <div class="space-y-2 mt-3">
-                            ${q.hint ? `<p class="text-xs text-slate-400 font-medium">${q.hint}</p>` : ''}
-                            <div class="flex gap-2">
-                                <input type="text" id="quiz-input-${q.id}" placeholder="請在此輸入答案..." value="${userProgress[q.id] ? userProgress[q.id].userAns : ''}" class="border border-slate-300 rounded-xl px-3.5 py-2 text-xs flex-grow focus:outline-none focus:ring-2 focus:ring-brand-500">
-                                <button onclick="submitQuizFill(${q.id})" class="bg-brand-600 text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-brand-700 transition">核對答案</button>
-                            </div>
-                        </div>
-                    `;
-                }
-
-                let feedbackBoxHTML = '';
-                if (userProgress[q.id]) {
-                    const isCorr = userProgress[q.id].isCorrect;
-                    feedbackBoxHTML = `
-                        <div class="mt-4 p-4 rounded-xl border ${isCorr ? 'bg-emerald-50/60 border-emerald-200' : 'bg-amber-50/60 border-amber-200'} space-y-2 text-xs">
-                            <div class="flex justify-between items-center">
-                                <span class="font-extrabold text-sm ${isCorr ? 'text-emerald-800' : 'text-amber-800'}">
-                                    ${isCorr ? '<i class="fa-solid fa-circle-check mr-1"></i> ✅ 正確！' : '<i class="fa-solid fa-circle-xmark mr-1"></i> ❌ 待加強複習！'}
-                                </span>
-                                <span class="font-bold text-slate-700">💡 正確答案：<code class="bg-white px-2 py-0.5 rounded border font-mono font-bold text-brand-700">${q.answer}</code></span>
-                            </div>
-                            <p class="text-slate-700 font-medium leading-relaxed"><strong>【中文翻譯】:</strong> ${q.translation}</p>
-                            <p class="text-slate-700 font-medium leading-relaxed"><strong>【詳細解析】:</strong> ${q.explanation}</p>
+                    optionsHtml = `
+                        <div class="mt-4">
+                            <input type="text" id="input-ans-${q.id}" placeholder="請在此輸入您的答案..." 
+                                class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
                         </div>
                     `;
                 }
 
                 card.innerHTML = `
-                    <div class="flex justify-between items-start gap-2">
-                        <span class="bg-brand-100 text-brand-800 font-extrabold text-xs px-2.5 py-1 rounded-md">${q.secTitle}</span>
-                        <div>${statusBadge}</div>
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xs font-semibold text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-full">${q.partTitle}</span>
+                        <span class="text-xs text-slate-400">#${q.id}</span>
                     </div>
-                    ${passageContextHTML}
-                    <h4 class="text-xs sm:text-sm font-bold text-slate-800 leading-relaxed">${q.question}</h4>
-                    ${inputAreaHTML}
-                    <div>${feedbackBoxHTML}</div>
+                    <h4 class="text-base font-semibold text-slate-800 leading-relaxed mt-1">${q.id}. ${q.text}</h4>
+                    ${optionsHtml}
+                    <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
+                        <button onclick="checkQuestionAnswer(${q.id})" class="px-4 py-2 bg-indigo-600 text-white hover:bg-indigo-700 text-xs font-semibold rounded-xl shadow-sm transition-colors">
+                            <i class="fa-solid fa-circle-check"></i> 核對答案
+                        </button>
+                        <button onclick="speakText('${q.text.replace(/'/g, "\\'")}')" class="text-xs text-slate-500 hover:text-indigo-600 flex items-center gap-1">
+                            <i class="fa-solid fa-volume-high"></i> 朗讀題幹
+                        </button>
+                    </div>
+                    <div id="explanation-${q.id}" class="hidden mt-4 p-4 rounded-xl text-xs space-y-2"></div>
                 `;
-
                 container.appendChild(card);
             });
-        }
+        };
 
-        function filterQuizSection(secKey) {
-            document.querySelectorAll('.quiz-sec-btn').forEach(btn => {
-                btn.classList.remove('active-qsec', 'bg-brand-600', 'text-white');
-                btn.classList.add('bg-slate-100', 'text-slate-600');
+        // 選擇選項時的反色高亮
+        window.selectOption = function(qId, selectedVal, btnElement) {
+            userAnswers[qId] = selectedVal;
+            document.querySelectorAll(`.option-btn-${qId}`).forEach(btn => {
+                btn.classList.remove('bg-indigo-600', 'text-white', 'border-indigo-600', 'shadow-md');
+                btn.classList.add('bg-white', 'text-slate-800', 'border-slate-200');
+                const icon = btn.querySelector('.check-icon');
+                if (icon) icon.className = "fa-regular fa-circle text-slate-300 check-icon";
             });
-            event.target.classList.add('active-qsec', 'bg-brand-600', 'text-white');
-            event.target.classList.remove('bg-slate-100', 'text-slate-600');
-            renderQuizQuestions(secKey);
-        }
 
-        function toggleQuizView(mode) {
-            const listBtn = document.getElementById('btn-view-list');
-            const singleBtn = document.getElementById('btn-view-single');
+            btnElement.classList.remove('bg-white', 'text-slate-800', 'border-slate-200');
+            btnElement.classList.add('bg-indigo-600', 'text-white', 'border-indigo-600', 'shadow-md');
+            const activeIcon = btnElement.querySelector('.check-icon');
+            if (activeIcon) activeIcon.className = "fa-solid fa-circle-check text-white check-icon";
+        };
 
-            if (mode === 'list') {
-                listBtn.classList.add('bg-white', 'shadow-sm', 'text-brand-600');
-                listBtn.classList.remove('text-slate-600');
-                singleBtn.classList.remove('bg-white', 'shadow-sm', 'text-brand-600');
-                singleBtn.classList.add('text-slate-600');
+        // 核對答案
+        window.checkQuestionAnswer = function(qId) {
+            const q = quizQuestions.find(item => item.id === qId);
+            const expDiv = document.getElementById(`explanation-${qId}`);
+            let isCorrect = false;
 
-                document.getElementById('quiz-list-container').classList.remove('hidden');
-                document.getElementById('quiz-single-container').classList.add('hidden');
-            } else {
-                singleBtn.classList.add('bg-white', 'shadow-sm', 'text-brand-600');
-                singleBtn.classList.remove('text-slate-600');
-                listBtn.classList.remove('bg-white', 'shadow-sm', 'text-brand-600');
-                listBtn.classList.add('text-slate-600');
-
-                document.getElementById('quiz-list-container').classList.add('hidden');
-                document.getElementById('quiz-single-container').classList.remove('hidden');
-                renderSingleCard(singleQIdx);
-            }
-        }
-
-        function submitQuizAns(qId, selectedOpt) {
-            const q = QUIZ_QUESTIONS.find(item => item.id === qId);
-            if (!q) return;
-
-            let isCorrect = selectedOpt.startsWith(q.answer) || selectedOpt === q.answer;
-
-            userProgress[qId] = {
-                answered: true,
-                isCorrect: isCorrect,
-                userAns: selectedOpt
-            };
-
-            updateGlobalStats();
-            const activeSec = document.querySelector('.active-qsec')?.getAttribute('onclick')?.match(/'(.*?)'/)[1] || 'all';
-            renderQuizQuestions(activeSec);
-            renderSingleCard(singleQIdx);
-        }
-
-        function submitQuizFill(qId) {
-            const q = QUIZ_QUESTIONS.find(item => item.id === qId);
-            const inputVal = document.getElementById(`quiz-input-${qId}`)?.value.trim() || '';
-            if (!q || !inputVal) return;
-
-            const cleanUser = inputVal.toLowerCase().replace(/[^a-z0-9]/g, '');
-            const cleanAns = q.answer.toLowerCase().replace(/[^a-z0-9]/g, '');
-
-            let isCorrect = (cleanUser === cleanAns) || q.answer.toLowerCase().includes(cleanUser);
-
-            userProgress[qId] = {
-                answered: true,
-                isCorrect: isCorrect,
-                userAns: inputVal
-            };
-
-            updateGlobalStats();
-            const activeSec = document.querySelector('.active-qsec')?.getAttribute('onclick')?.match(/'(.*?)'/)[1] || 'all';
-            renderQuizQuestions(activeSec);
-            renderSingleCard(singleQIdx);
-        }
-
-        function renderSingleCard(index) {
-            const q = QUIZ_QUESTIONS[index];
-            if (!q) return;
-
-            document.getElementById('single-sec-title').innerText = q.secTitle;
-            document.getElementById('single-q-num').innerText = `第 ${index + 1} / ${QUIZ_QUESTIONS.length} 題`;
-            document.getElementById('single-progress-text').innerText = `${index + 1} / ${QUIZ_QUESTIONS.length}`;
-
-            const container = document.getElementById('single-q-card-content');
-
-            let passageContextHTML = q.passageContext ? `<div class="bg-slate-50 p-4 rounded-xl border border-slate-200 text-xs text-slate-700 leading-relaxed mb-3">${q.passageContext}</div>` : '';
-
-            let inputAreaHTML = '';
             if (q.type === 'choice') {
-                inputAreaHTML = `
-                    <div class="grid grid-cols-1 gap-2 mt-3">
-                        ${q.options.map(opt => `
-                            <button onclick="submitQuizAns(${q.id}, '${opt.replace(/'/g, "\\'")}')" 
-                                class="text-left px-4 py-3 rounded-xl border border-slate-200 text-xs font-semibold hover:bg-brand-50 hover:border-brand-300 transition">
-                                ${opt}
-                            </button>
-                        `).join('')}
-                    </div>
-                `;
+                if (!userAnswers[qId]) { alert('請先選擇選項！'); return; }
+                isCorrect = (userAnswers[qId] === q.ans);
             } else {
-                inputAreaHTML = `
-                    <div class="space-y-2 mt-3">
-                        ${q.hint ? `<p class="text-xs text-slate-400 font-medium">${q.hint}</p>` : ''}
-                        <div class="flex gap-2">
-                            <input type="text" id="quiz-input-${q.id}" placeholder="請在此輸入答案..." value="${userProgress[q.id] ? userProgress[q.id].userAns : ''}" class="border border-slate-300 rounded-xl px-3.5 py-2 text-xs flex-grow focus:outline-none focus:ring-2 focus:ring-brand-500">
-                            <button onclick="submitQuizFill(${q.id})" class="bg-brand-600 text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-brand-700 transition">核對答案</button>
-                        </div>
-                    </div>
-                `;
+                const userVal = document.getElementById(`input-ans-${qId}`).value.trim().toLowerCase();
+                if (!userVal) { alert('請輸入答案！'); return; }
+                isCorrect = userVal.includes(q.ans.toLowerCase());
             }
 
-            let feedbackBoxHTML = '';
-            if (userProgress[q.id]) {
-                const isCorr = userProgress[q.id].isCorrect;
-                feedbackBoxHTML = `
-                    <div class="mt-4 p-4 rounded-xl border ${isCorr ? 'bg-emerald-50/60 border-emerald-200' : 'bg-amber-50/60 border-amber-200'} space-y-2 text-xs">
-                        <div class="flex justify-between items-center">
-                            <span class="font-extrabold text-sm ${isCorr ? 'text-emerald-800' : 'text-amber-800'}">
-                                ${isCorr ? '<i class="fa-solid fa-circle-check mr-1"></i> ✅ 正確！' : '<i class="fa-solid fa-circle-xmark mr-1"></i> ❌ 待加強複習！'}
-                            </span>
-                            <span class="font-bold text-slate-700">💡 正確答案：<code class="bg-white px-2 py-0.5 rounded border font-mono font-bold text-brand-700">${q.answer}</code></span>
-                        </div>
-                        <p class="text-slate-700 font-medium leading-relaxed"><strong>【中文翻譯】:</strong> ${q.translation}</p>
-                        <p class="text-slate-700 font-medium leading-relaxed"><strong>【詳細解析】:</strong> ${q.explanation}</p>
-                    </div>
-                `;
+            expDiv.classList.remove('hidden', 'bg-emerald-50', 'bg-rose-50');
+            if (isCorrect) {
+                expDiv.classList.add('bg-emerald-50', 'text-emerald-950', 'border', 'border-emerald-200');
+                expDiv.innerHTML = `<p class="font-bold text-emerald-700 text-sm">✅ 回答正確！</p><p><strong>考點：</strong>${q.exp}</p><p class="text-slate-500"><strong>翻譯：</strong>${q.trans}</p>`;
+            } else {
+                expDiv.classList.add('bg-rose-50', 'text-rose-950', 'border', 'border-rose-200');
+                expDiv.innerHTML = `<p class="font-bold text-rose-700 text-sm">❌ 再試試看！</p><p><strong>正確答案：</strong>${q.ans}</p><p><strong>說明：</strong>${q.exp}</p>`;
             }
+            userAnswers[`done_${qId}`] = true;
+            userAnswers[`correct_${qId}`] = isCorrect;
+            updateHeaderStats();
+        };
 
-            container.innerHTML = `
-                ${passageContextHTML}
-                <h4 class="text-sm font-bold text-slate-800 leading-relaxed">${q.question}</h4>
-                ${inputAreaHTML}
-                ${feedbackBoxHTML}
-            `;
+        window.filterQuizPart = function(part) {
+            activePartFilter = part;
+            renderQuizQuestions();
+        };
+
+        function updateHeaderStats() {
+            let doneCount = 0, correctCount = 0;
+            quizQuestions.forEach(q => {
+                if (userAnswers[`done_${q.id}`]) {
+                    doneCount++;
+                    if (userAnswers[`correct_${q.id}`]) correctCount++;
+                }
+            });
+            document.getElementById('stat-progress').innerText = `${doneCount} / 40 題`;
+            document.getElementById('stat-accuracy').innerText = doneCount > 0 ? `${Math.round((correctCount / doneCount) * 100)} %` : `-- %`;
         }
 
-        function prevSingleQ() {
-            if (singleQIdx > 0) {
-                singleQIdx--;
-                renderSingleCard(singleQIdx);
-            }
-        }
+        // 初始化與事件監聽綁定
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('btn-tab-guide')?.addEventListener('click', () => switchTab('tab-guide'));
+            document.getElementById('btn-tab-weakness')?.addEventListener('click', () => switchTab('tab-weakness'));
+            document.getElementById('btn-tab-quiz')?.addEventListener('click', () => switchTab('tab-quiz'));
+            document.getElementById('btn-tab-grammar-vocab')?.addEventListener('click', () => switchTab('tab-grammar-vocab'));
 
-        function nextSingleQ() {
-            if (singleQIdx < QUIZ_QUESTIONS.length - 1) {
-                singleQIdx++;
-                renderSingleCard(singleQIdx);
-            }
-        }
-
-        function randomSingleQ() {
-            singleQIdx = Math.floor(Math.random() * QUIZ_QUESTIONS.length);
-            renderSingleCard(singleQIdx);
-        }
+            renderVocabTable();
+            renderQuizQuestions();
+        });
     </script>
 </body>
 </html>
